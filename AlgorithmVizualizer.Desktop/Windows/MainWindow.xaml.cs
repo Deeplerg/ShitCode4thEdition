@@ -24,7 +24,7 @@ public partial class MainWindow : Window
 
     private void SortVizualizationButton_OnClick(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        CreateWindowAndShow<SortWindow>();
     }
     
     private void CreateWindowAndShow<TWindow>() where TWindow : Window
