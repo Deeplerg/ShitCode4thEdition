@@ -3,16 +3,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:AlgorithmVizualizer.Desktop.Windows"
         mc:Ignorable="d"
-        Title="TextSortWindow" Height="450" Width="800">
+        Title="TextSortWindow" Height="450" Width="800" Background="#FF94DEE0" FontFamily="Verdana">
     <Grid>
-        <TextBox x:Name="textBox" HorizontalAlignment="Left" Margin="107,54,0,0" TextWrapping="Wrap" Text="apple, banana, apple, arange, pear, banana, apple" VerticalAlignment="Top" Width="120"/>
-        <Button x:Name="btn" Content="Запустить" HorizontalAlignment="Left" Margin="463,52,0,0" VerticalAlignment="Top" Click="Button_Click"/>
-        <Label x:Name="lbl" Content="" HorizontalAlignment="Left" Margin="107,171,0,0" VerticalAlignment="Top" Height="189" Width="561"/>
-        <ComboBox x:Name="algComboBox" HorizontalAlignment="Left" Margin="280,52,0,0" VerticalAlignment="Top" Width="120">
-            <ComboBoxItem Content="BuiltInSort"/>
-            <ComboBoxItem Content="RadixSort"/>
+        <TextBox x:Name="TextBox" FontFamily="Verdana" HorizontalAlignment="Left" Margin="107,54,0,0" TextWrapping="Wrap" Text="apple, banana, apple, arange, pear, banana, apple" VerticalAlignment="Top" Width="120"/>
+        <Button x:Name="Btn" Content="Запустить" FontFamily="Verdana" HorizontalAlignment="Left" Margin="463,52,0,0" VerticalAlignment="Top" Click="Button_Click"/>
+        <Label x:Name="Lbl" Content="" HorizontalAlignment="Left" FontFamily="Verdana" Margin="107,171,0,0" VerticalAlignment="Top" Height="189" Width="561"/>
+        <ComboBox x:Name="AlgComboBox" HorizontalAlignment="Left" FontFamily="Verdana" Margin="280,52,0,0" VerticalAlignment="Top" Width="120">
+            <ComboBoxItem Content="BuiltInSort" FontFamily="Verdana"/>
+            <ComboBoxItem Content="RadixSort" FontFamily="Verdana"/>
         </ComboBox>
     </Grid>
 </Window>

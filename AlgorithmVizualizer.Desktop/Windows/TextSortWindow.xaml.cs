@@ -23,13 +23,13 @@ namespace AlgorithmVizualizer.Desktop.Windows
         public TextSortWindow()
         {
             InitializeComponent();
-            algComboBox.SelectedIndex = 0;
+            AlgComboBox.SelectedIndex = 0;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            string text = textBox.Text;
-            string? selectedAlgorithmName = (algComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+            string text = TextBox.Text;
+            string? selectedAlgorithmName = (AlgComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
             if (string.IsNullOrEmpty(selectedAlgorithmName)) return;
             
             ISortAlgorithm? selectedAlgorithm = null;
@@ -54,12 +54,12 @@ namespace AlgorithmVizualizer.Desktop.Windows
             string[]? sorted = sortProcessor.SortWords(words);
             Dictionary<string, int> counts = sortProcessor.CountWords(sorted);
 
-            lbl.Content = $"Сортировка {selectedAlgorithmName} методом:\n";
-            lbl.Content += string.Join(", ", sorted) + "\n\n";
-            lbl.Content += "Подсчёт слов:\n";
+            Lbl.Content = $"Сортировка {selectedAlgorithmName} методом:\n";
+            Lbl.Content += string.Join(", ", sorted) + "\n\n";
+            Lbl.Content += "Подсчёт слов:\n";
             foreach (var pair in counts)
             {
-                lbl.Content += $"{pair.Key}: {pair.Value}\n";
+                Lbl.Content += $"{pair.Key}: {pair.Value}\n";
             }
         }
     }
