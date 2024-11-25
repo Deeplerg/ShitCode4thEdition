@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:AlgorithmVizualizer.Desktop"
         mc:Ignorable="d"
         Title="ВЫБЕРИ СВОЮ УЧАСТЬ" Height="450" Width="800"
-        MouseMove="Window_OnMouseMove">
+        MouseMove="Window_OnMouseMove"
+        Background="#FF94DEE0" FontFamily="Verdana">
     <Grid>
         <Button Name="SortVizualizationButton" Content="задание ОДИН"
                 Width="100" Height="50" 

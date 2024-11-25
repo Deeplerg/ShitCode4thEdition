@@ -18,7 +18,7 @@ namespace AlgorithmVizualizer.Desktop.Windows
         {
             InitializeComponent();
             InitializeAlgorithms();
-            DelaySlider.Value = 100;
+            DelaySlider.Value = 150;
             ArrayLengthSlider.Value = 50;
         }
 
