@@ -10,15 +10,16 @@ namespace AlgorithmVizualizer.Desktop.Windows
 {
     public partial class SortWindow : Window
     {
-        private int[] array; // Массив для сортировки
-        private const int ArraySize = 50; // Размер массива
-        private bool isSorting = false; // Флаг для проверки выполнения сортировки
+        private int[] _array; // Массив для сортировки
+        private  int _arraySize = 1; // Размер массива
+        private bool _isSorting = false; // Флаг для проверки выполнения сортировки
 
         public SortWindow()
         {
             InitializeComponent();
             InitializeAlgorithms();
             DelaySlider.Value = 100;
+            ArrayLengthSlider.Value = 50;
         }
 
         // Инициализация списка алгоритмов
@@ -36,9 +37,10 @@ namespace AlgorithmVizualizer.Desktop.Windows
         // Генерация случайного массива
         private void GenerateArray_Click(object sender, RoutedEventArgs e)
         {
+            _arraySize = (int)ArrayLengthSlider.Value;
             var random = new Random();
-            array = Enumerable.Range(1, ArraySize).OrderBy(_ => random.Next()).ToArray();
-            UpdateVisualization(array);
+            _array = Enumerable.Range(1, _arraySize).OrderBy(_ => random.Next()).ToArray();
+            UpdateVisualization(_array);
             LogTextBox.Clear();
             Log("Массив сгенерирован.");
         }
@@ -47,7 +49,7 @@ namespace AlgorithmVizualizer.Desktop.Windows
         private async void StartSortingQuadro_Click(object sender, RoutedEventArgs e)
         {
             StartSortingImprovedButton.IsEnabled = false;
-            if (array == null || array.Length == 0)
+            if (_array.Length == 0)
             {
                 Log("Массив не сгенерирован!");
                 return;
@@ -55,30 +57,28 @@ namespace AlgorithmVizualizer.Desktop.Windows
 
             int delay = (int)DelaySlider.Value;
 
-            isSorting = true;
+            _isSorting = true;
             StartSortingQuadroButton.IsEnabled = false;
             StopSortingButton.IsEnabled = true; 
             // Выбор алгоритма
-            string quadraticAlgorithm = QuadraticAlgorithmComboBox.SelectedItem.ToString();
-
-
-            int[] arrayCopy = (int[])array.Clone();
+            string? quadraticAlgorithm = QuadraticAlgorithmComboBox.SelectedItem.ToString();
+            int[] arrayCopy = (int[])_array.Clone();
 
             // Выполнение квадратичного алгоритма
             Log($"Запускаем {quadraticAlgorithm}...");
-            if (quadraticAlgorithm.Contains("SelectSort"))
-                await SelectionSort(array, delay);
-            else if (quadraticAlgorithm.Contains("BubbleSort"))
-                await BubbleSort(array, delay);
+            if (quadraticAlgorithm != null && quadraticAlgorithm.Contains("SelectSort"))
+                await SelectionSort(_array, delay);
+            else if (quadraticAlgorithm != null && quadraticAlgorithm.Contains("BubbleSort"))
+                await BubbleSort(_array, delay);
 
 
-            if (isSorting)
+            if (_isSorting)
             {
                 Log("Сортировка завершена.");
             }
 
             // Разблокируем интерфейс
-            isSorting = false;
+            _isSorting = false;
             StartSortingQuadroButton.IsEnabled = true;
             StartSortingImprovedButton.IsEnabled = true;
             StopSortingButton.IsEnabled = false;
@@ -88,7 +88,7 @@ namespace AlgorithmVizualizer.Desktop.Windows
         {
             StartSortingQuadroButton.IsEnabled = false;
 
-            if (array == null || array.Length == 0)
+            if (_array.Length == 0)
             {
                 Log("Массив не сгенерирован!");
                 return;
@@ -96,28 +96,28 @@ namespace AlgorithmVizualizer.Desktop.Windows
 
             int delay = (int)DelaySlider.Value;
 
-            isSorting = true;
+            _isSorting = true;
             StartSortingImprovedButton.IsEnabled = false;
             StopSortingButton.IsEnabled = true;
             // Выбор алгоритма
-            string improvedAlgorithm = ImprovedAlgorithmComboBox.SelectedItem.ToString();
+            string? improvedAlgorithm = ImprovedAlgorithmComboBox.SelectedItem.ToString();
 
-            int[] arrayCopy = (int[])array.Clone();
+            int[] arrayCopy = (int[])_array.Clone();
 
             // Выполнение усовершенствованного алгоритма
             Log($"Запускаем {improvedAlgorithm}...");
-            if (improvedAlgorithm.Contains("QuickSort"))
+            if (improvedAlgorithm != null && improvedAlgorithm.Contains("QuickSort"))
                 await QuickSort(arrayCopy, 0, arrayCopy.Length - 1, delay);
-            else if (improvedAlgorithm.Contains("HeapSort"))
+            else if (improvedAlgorithm != null && improvedAlgorithm.Contains("HeapSort"))
                 await HeapSort(arrayCopy, delay);
 
-            if (isSorting)
+            if (_isSorting)
             {
                 Log("Сортировка завершена.");
             }
 
             // Разблокируем интерфейс
-            isSorting = false;
+            _isSorting = false;
             StartSortingImprovedButton.IsEnabled = true;
             StartSortingQuadroButton.IsEnabled = true;
             StopSortingButton.IsEnabled = false;
@@ -135,13 +135,13 @@ namespace AlgorithmVizualizer.Desktop.Windows
         {
             ArrayCanvas.Children.Clear();
             double barWidth = ArrayCanvas.ActualWidth / array.Length;
-
+            double barHeight = ArrayCanvas.ActualHeight / array.Length;
             for (int i = 0; i < array.Length; i++)
             {
                 var bar = new Rectangle
                 {
                     Width = barWidth - 2,
-                    Height = array[i] * 3, // Масштабирование для визуализации
+                    Height = barHeight * array[i], // Масштабирование для визуализации
                     Fill = (i == index1 || i == index2) ? Brushes.Red : Brushes.Blue
                 };
                 Canvas.SetLeft(bar, i * barWidth);
@@ -150,6 +150,25 @@ namespace AlgorithmVizualizer.Desktop.Windows
             }
         }
 
+        private void UpdateVisualization(int[] array, int index1, int index2, int elementQuick)
+        {
+            ArrayCanvas.Children.Clear();
+            double barWidth = ArrayCanvas.ActualWidth / array.Length;
+            double barHeight = ArrayCanvas.ActualHeight / array.Length;
+            for (int i = 0; i < array.Length; i++)
+            {
+                var bar = new Rectangle
+                {
+                    Width = barWidth - 2,
+                    Height = barHeight * array[i], // Масштабирование для визуализации
+                    Fill = (i == index1 || i == index2) ? Brushes.Red : (i == elementQuick) ? Brushes.Green : Brushes.Blue
+                };
+                Canvas.SetLeft(bar, i * barWidth);
+                Canvas.SetBottom(bar, 0);
+                ArrayCanvas.Children.Add(bar);
+            }
+        }
+        
         // Сортировка выбором
         private async Task SelectionSort(int[] array, int delay)
         {
@@ -158,9 +177,10 @@ namespace AlgorithmVizualizer.Desktop.Windows
                 int minIndex = i;
                 for (int j = i + 1; j < array.Length; j++)
                 {
-                    if (!isSorting) return; // Прерывание при остановке
+                    if (!_isSorting) return; // Прерывание при остановке
 
                     Log($"Сравниваем: {array[j]} и {array[minIndex]}");
+                    UpdateVisualization(array, j, minIndex);
                     if (array[j] < array[minIndex])
                         minIndex = j;
 
@@ -185,9 +205,10 @@ namespace AlgorithmVizualizer.Desktop.Windows
             {
                 for (int j = 0; j < array.Length - i - 1; j++)
                 {
-                    if (!isSorting) return; // Прерывание при остановке
+                    if (!_isSorting) return; // Прерывание при остановке
 
                     Log($"Сравниваем: {array[j]} и {array[j + 1]}");
+                    UpdateVisualization(array, j, j + 1);
                     await Task.Delay(delay);
                     if (array[j] > array[j + 1])
                     {
@@ -218,23 +239,25 @@ namespace AlgorithmVizualizer.Desktop.Windows
 
             for (int j = left; j < right; j++)
             {
-                if (!isSorting) return i + 1; // Прерывание при остановке
+                if (!_isSorting) return i + 1; // Прерывание при остановке
 
                 Log($"Сравниваем: {array[j]} с опорным {pivot}");
+                UpdateVisualization(array, j, j, right);
                 if (array[j] < pivot)
                 {
                     i++;
                     Log($"Меняем местами: {array[i]} и {array[j]}");
                     (array[i], array[j]) = (array[j], array[i]);
                     await Task.Delay(delay);
-                    UpdateVisualization(array, i, j);
+                    UpdateVisualization(array, i, j, right);
+                    await Task.Delay(delay);
                 }
             }
 
             Log($"Ставим опорный {pivot} на позицию {i + 1}");
             (array[i + 1], array[right]) = (array[right], array[i + 1]);
             await Task.Delay(delay);
-            UpdateVisualization(array, i + 1, right);
+            UpdateVisualization(array, i + 1, i + 1, right);
 
             return i + 1;
         }
@@ -249,7 +272,7 @@ namespace AlgorithmVizualizer.Desktop.Windows
 
             for (int i = n - 1; i >= 0; i--)
             {
-                if (!isSorting) return; // Прерывание при остановке
+                if (!_isSorting) return; // Прерывание при остановке
 
                 Log($"Меняем местами: {array[0]} и {array[i]}");
                 (array[0], array[i]) = (array[i], array[0]);
@@ -262,7 +285,7 @@ namespace AlgorithmVizualizer.Desktop.Windows
 
         private void StopSorting_Click(object sender, RoutedEventArgs e)
         {
-            isSorting = false; // Устанавливаем флаг, чтобы остановить текущую сортировку
+            _isSorting = false; // Устанавливаем флаг, чтобы остановить текущую сортировку
             Log("Сортировка остановлена.");
         }
 
@@ -280,7 +303,7 @@ namespace AlgorithmVizualizer.Desktop.Windows
 
             if (largest != i)
             {
-                if (!isSorting) return; // Прерывание при остановке
+                if (!_isSorting) return; // Прерывание при остановке
 
                 Log($"Меняем местами: {array[i]} и {array[largest]}");
                 (array[i], array[largest]) = (array[largest], array[i]);
