@@ -54,12 +54,12 @@ namespace AlgorithmVizualizer.Desktop.Windows
             string[]? sorted = sortProcessor.SortWords(words);
             Dictionary<string, int> counts = sortProcessor.CountWords(sorted);
 
-            Lbl.Content = $"Сортировка {selectedAlgorithmName} методом:\n";
-            Lbl.Content += string.Join(", ", sorted) + "\n\n";
-            Lbl.Content += "Подсчёт слов:\n";
+            Lbl.Text = $"Сортировка {selectedAlgorithmName} методом:\n";
+            Lbl.Text += string.Join(", ", sorted) + "\n\n";
+            Lbl.Text += "Подсчёт слов:\n";
             foreach (var pair in counts)
             {
-                Lbl.Content += $"{pair.Key}: {pair.Value}\n";
+                Lbl.Text += $"{pair.Key}: {pair.Value}\n";
             }
         }
     }

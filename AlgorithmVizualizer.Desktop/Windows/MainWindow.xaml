@@ -10,10 +10,10 @@
         Background="#FF94DEE0" FontFamily="Verdana">
     <Grid>
         <Button Name="SortVizualizationButton" Content="задание ОДИН"
-                Width="100" Height="50" 
+                Width="100" Height="70" 
                 Click="SortVizualizationButton_OnClick" Margin="350,167,350,217"/>
         <Button x:Name="TextSortVizualizationButton" Content="задание 3"
-            Width="100" Height="50" 
+            Width="100" Height="70" 
             Click="TextSortVizualizationButton_OnClick" Margin="350,228,350,156"/>
     </Grid>
 </Window>
