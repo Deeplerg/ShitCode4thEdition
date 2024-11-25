@@ -29,4 +29,8 @@
       </Page>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\SortingText\SortingText.csproj" />
+    </ItemGroup>
+
 </Project>

@@ -26,7 +26,12 @@ public partial class MainWindow : Window
     {
         CreateWindowAndShow<SortWindow>();
     }
-    
+
+    private void TextSortVizualizationButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        CreateWindowAndShow<TextSortWindow>();
+    }
+
     private void CreateWindowAndShow<TWindow>() where TWindow : Window
     {
         var window = _activator.CreateInstance<TWindow>();

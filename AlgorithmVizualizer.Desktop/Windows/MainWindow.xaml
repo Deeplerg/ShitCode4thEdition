@@ -11,6 +11,9 @@
     <Grid>
         <Button Name="SortVizualizationButton" Content="задание ОДИН"
                 Width="100" Height="50" 
-                Click="SortVizualizationButton_OnClick"/>
+                Click="SortVizualizationButton_OnClick" Margin="350,167,350,217"/>
+        <Button x:Name="TextSortVizualizationButton" Content="задание 3"
+            Width="100" Height="50" 
+            Click="TextSortVizualizationButton_OnClick" Margin="350,228,350,156"/>
     </Grid>
 </Window>
