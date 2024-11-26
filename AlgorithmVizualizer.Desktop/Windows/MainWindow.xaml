@@ -9,11 +9,13 @@
         MouseMove="Window_OnMouseMove"
         Background="#FF94DEE0" FontFamily="Verdana">
     <Grid>
-        <Button Name="SortVizualizationButton" Content="задание ОДИН"
+        <Button  Name="SortVizualizationButton" Content="задание 1"
                 Width="100" Height="70" 
-                Click="SortVizualizationButton_OnClick" Margin="350,167,350,217"/>
-        <Button x:Name="TextSortVizualizationButton" Content="задание 3"
-            Width="100" Height="70" 
-            Click="TextSortVizualizationButton_OnClick" Margin="350,228,350,156"/>
+                Click="SortVizualizationButton_OnClick" Margin="350,167,0,0" FontFamily="Verdana"/>
+        <StackPanel Orientation="Vertical" Margin="0,0,0,0">
+        <Button VerticalAlignment="Top" HorizontalAlignment="Center" x:Name="TextSortVizualizationButton" Content="задание 3"
+            Width="100" Height="70" FontFamily="Verdana"
+            Click="TextSortVizualizationButton_OnClick"/>
+        </StackPanel>
     </Grid>
 </Window>
