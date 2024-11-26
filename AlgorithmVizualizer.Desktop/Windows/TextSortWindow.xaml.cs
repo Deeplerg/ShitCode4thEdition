@@ -35,18 +35,19 @@ namespace AlgorithmVizualizer.Desktop.Windows
             ISortAlgorithm? selectedAlgorithm = null;
             switch (selectedAlgorithmName)
             {
-                case "BuiltInSort":
+                case "Сортировка слиянием (MergeSort)":
                 {
-                    selectedAlgorithm = new BuiltInSort();
-                    selectedAlgorithmName = "встроенным";
+                    selectedAlgorithm = new MergeSort();
+                    selectedAlgorithmName = "merge";
                     break;
                 }
-                case "RadixSort":
+                case "Поразрядная сортировка (RadixSort)":
                 {
                     selectedAlgorithm = new RadixSort();
                     selectedAlgorithmName = "radix";
                     break;
                 }
+                
             }
             
             var sortProcessor = new TextProcessor(selectedAlgorithm);

@@ -5,13 +5,13 @@
     <Grid>
         <StackPanel  HorizontalAlignment="Stretch" Background="#FF48A3EF" Orientation="Horizontal" MaxHeight="70" MinWidth="798" VerticalAlignment="Top">
         <Button Width="100" Height="40" x:Name="Btn" Content="Запустить" FontFamily="Verdana" HorizontalAlignment="Left" Margin="10,10,0,10" VerticalAlignment="Top" Click="Button_Click"/>
-        <ComboBox MaxWidth="200" Height="30" x:Name="AlgComboBox" HorizontalAlignment="Left" FontFamily="Verdana" Margin="10,15,10,10" VerticalAlignment="Top" Width="120">
-            <ComboBoxItem Content="BuiltInSort" FontFamily="Verdana"/>
-            <ComboBoxItem Content="RadixSort" FontFamily="Verdana"/>
+        <ComboBox MaxWidth="250" Height="30" x:Name="AlgComboBox" HorizontalAlignment="Left" FontFamily="Verdana" Margin="10,15,10,10" VerticalAlignment="Top" Width="250">
+            <ComboBoxItem Content="Сортировка слиянием (MergeSort)" FontFamily="Verdana"/>
+            <ComboBoxItem Content="Поразрядная сортировка (RadixSort)" FontFamily="Verdana"/>
         </ComboBox>
         </StackPanel>
         <StackPanel HorizontalAlignment="Stretch" Orientation="Horizontal" Margin="1,71,1,1">
-        <TextBox HorizontalContentAlignment="Stretch" VerticalScrollBarVisibility="Auto" MinHeight="200"  MinWidth="399"  x:Name="TextBox" FontFamily="Verdana" HorizontalAlignment="Left" Margin="1,1,0,1" TextWrapping="Wrap" Text="apple, banana, apple, arange, pear, banana, apple" VerticalAlignment="Top" />
+        <TextBox HorizontalContentAlignment="Stretch" VerticalScrollBarVisibility="Auto" MinHeight="200"  MinWidth="399"  x:Name="TextBox" FontFamily="Verdana" HorizontalAlignment="Left" Margin="1,1,0,1" TextWrapping="Wrap" Text="apple, banana, apple, orange, pear, banana, apple" VerticalAlignment="Top" />
         <TextBox HorizontalContentAlignment="Stretch" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" IsReadOnly="True" Background="White" MinWidth="399" MinHeight="200"  x:Name="Lbl" HorizontalAlignment="Left" FontFamily="Verdana" Margin="0,1,1,1" VerticalAlignment="Top" />
         </StackPanel>
     </Grid>
