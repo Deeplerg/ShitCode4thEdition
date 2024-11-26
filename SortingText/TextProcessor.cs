@@ -11,7 +11,7 @@ public class TextProcessor
     
     public string[]? SplitText(string text)
     {
-        return text.Split(new[] { ' ', ',', '.', '!', '?', ';', ':', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+        return text.Split(new[] { ' ', ',', '.', '!', '?', ';', ':', '\n', '\r', '*', '-', '\'', '\"', '/', '\\', '\t', '\v'}, StringSplitOptions.RemoveEmptyEntries);
     }
     
     public string[]? SortWords(string[]? words)
