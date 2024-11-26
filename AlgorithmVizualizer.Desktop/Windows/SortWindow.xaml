@@ -7,7 +7,7 @@
             <RowDefinition Height="5*"/>
             <RowDefinition Height="283*"/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Vertical" Margin="10,0,10,0" Grid.Row="10" Background="#FF94DEE0">
+        <StackPanel VerticalAlignment="Stretch" Orientation="Vertical" Margin="10,0,10,0" Grid.Row="10" Background="#FF94DEE0">
             <StackPanel Orientation="Horizontal" Background="#FF48A3EF" Height="41">
                 <Label Content="Квадратичный алгоритм:" FontFamily="Verdana" />
                 <ComboBox x:Name="QuadraticAlgorithmComboBox" Width="250" FontFamily="Verdana" />
@@ -29,7 +29,7 @@
             <Button x:Name="StopSortingButton" Content="Стоп" Click="StopSorting_Click" Width="150" IsEnabled="False" Height="50" Margin="10,0,10,0" FontFamily="Verdana" />
             </StackPanel>
             <Canvas x:Name="ArrayCanvas" Height="450" Margin="0,10,0,0" Background="LightGray"/>
-            <TextBox x:Name="LogTextBox" Height="150" VerticalScrollBarVisibility="Auto" Margin="0,13,0,10" IsReadOnly="True" FontFamily="Verdana"/>
+            <TextBox x:Name="LogTextBox" HorizontalAlignment="Stretch" MinHeight="150" MaxHeight="200" VerticalScrollBarVisibility="Auto" Margin="0,10,0,10" IsReadOnly="True" FontFamily="Verdana"/>
         </StackPanel>
     </Grid>
 </Window>

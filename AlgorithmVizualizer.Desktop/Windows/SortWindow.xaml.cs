@@ -191,6 +191,7 @@ namespace AlgorithmVizualizer.Desktop.Windows
                 if (minIndex != i)
                 {
                     Log($"Меняем местами: {array[i]} и {array[minIndex]}");
+                    UpdateVisualization(array, i, minIndex);
                     (array[i], array[minIndex]) = (array[minIndex], array[i]);
                     await Task.Delay(delay);
                     UpdateVisualization(array, i, minIndex);
@@ -213,9 +214,11 @@ namespace AlgorithmVizualizer.Desktop.Windows
                     if (array[j] > array[j + 1])
                     {
                         Log($"Меняем местами: {array[j]} и {array[j + 1]}");
+                        UpdateVisualization(array, j, j + 1);
                         (array[j], array[j + 1]) = (array[j + 1], array[j]);
                         await Task.Delay(delay);
                         UpdateVisualization(array, j, j + 1);
+                        await Task.Delay(delay);
                     }
                 }
             }
@@ -247,6 +250,7 @@ namespace AlgorithmVizualizer.Desktop.Windows
                 {
                     i++;
                     Log($"Меняем местами: {array[i]} и {array[j]}");
+                    UpdateVisualization(array, i, j, right);
                     (array[i], array[j]) = (array[j], array[i]);
                     await Task.Delay(delay);
                     UpdateVisualization(array, i, j, right);
@@ -275,10 +279,11 @@ namespace AlgorithmVizualizer.Desktop.Windows
                 if (!_isSorting) return; // Прерывание при остановке
 
                 Log($"Меняем местами: {array[0]} и {array[i]}");
+                UpdateVisualization(array, 0, i);
                 (array[0], array[i]) = (array[i], array[0]);
                 await Task.Delay(delay);
                 UpdateVisualization(array, 0, i);
-
+                await Task.Delay(delay);
                 await Heapify(array, i, 0, delay);
             }
         }
@@ -306,10 +311,11 @@ namespace AlgorithmVizualizer.Desktop.Windows
                 if (!_isSorting) return; // Прерывание при остановке
 
                 Log($"Меняем местами: {array[i]} и {array[largest]}");
+                UpdateVisualization(array, i, largest);
                 (array[i], array[largest]) = (array[largest], array[i]);
                 await Task.Delay(delay);
                 UpdateVisualization(array, i, largest);
-
+                await Task.Delay(delay);
                 await Heapify(array, n, largest, delay);
             }
         }
