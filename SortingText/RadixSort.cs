@@ -17,15 +17,28 @@ public class RadixSort : ISortAlgorithm
 
     private string[]? CountingSortByCharacter(string[]? words, int position)
     {
-        List<string>[] buckets = new List<string>[256];
-        for (int i = 0; i < 256; i++) buckets[i] = new List<string>();
+        var buckets = new Dictionary<char, List<string>>();
 
         foreach (var word in words)
         {
             char character = position < word.Length ? word[position] : '\0';
+            if (!buckets.ContainsKey(character))
+            {
+                buckets[character] = new List<string>();
+            }
             buckets[character].Add(word);
         }
 
-        return buckets.SelectMany(b => b).ToArray();
+        var sortedWords = new List<string>();
+        for (int i = 0; i <= char.MaxValue; i++)
+        {
+            char currentChar = (char)i;
+            if (buckets.TryGetValue(currentChar, out var bucket))
+            {
+                sortedWords.AddRange(bucket);
+            }
+        }
+
+        return sortedWords.ToArray();
     }
 }
