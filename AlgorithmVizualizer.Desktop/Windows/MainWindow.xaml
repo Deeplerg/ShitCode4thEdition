@@ -5,17 +5,30 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AlgorithmVizualizer.Desktop"
         mc:Ignorable="d"
-        Title="ВЫБЕРИ СВОЮ УЧАСТЬ" Height="450" Width="800"
+        Title="Выбор задания" Height="600" Width="800"
         MouseMove="Window_OnMouseMove"
         Background="#FF94DEE0" FontFamily="Verdana">
     <Grid>
-        <Button  Name="SortVizualizationButton" Content="задание 1"
-                Width="100" Height="70" 
-                Click="SortVizualizationButton_OnClick" Margin="350,167,0,0" FontFamily="Verdana"/>
-        <StackPanel Orientation="Vertical" Margin="0,0,0,0">
-        <Button VerticalAlignment="Top" HorizontalAlignment="Center" x:Name="TextSortVizualizationButton" Content="задание 3"
-            Width="100" Height="70" FontFamily="Verdana"
-            Click="TextSortVizualizationButton_OnClick"/>
+        <StackPanel Orientation="Vertical" Margin="0,50,0,50">
+            <Button VerticalAlignment="Top" HorizontalAlignment="Center" x:Name="SortVizualizationButton" Content="Задание 1"
+                    Width="100" Height="70" FontFamily="Verdana"
+                    Margin="0,0,0,50"
+                    Click="SortVizualizationButton_OnClick"/>
+            
+            <Button VerticalAlignment="Top" HorizontalAlignment="Center" x:Name="TableButton" Content="Задание 2"
+                    Width="100" Height="70" FontFamily="Verdana"
+                    Margin="0,0,0,50"
+                    Click="TableButton_OnClick"/>
+            
+            <Button VerticalAlignment="Top" HorizontalAlignment="Center" x:Name="TextSortVizualizationButton" Content="Задание 3"
+                    Width="100" Height="70" FontFamily="Verdana"
+                    Margin="0,0,0,50"
+                    Click="TextSortVizualizationButton_OnClick"/>
         </StackPanel>
+        
+        <Button VerticalAlignment="Top" HorizontalAlignment="Center" x:Name="ExitButton" Content="Выйти из программы"
+                Width="150" Height="70" FontFamily="Verdana"
+                Margin="0,430,0,50"
+                Click="ExitButton_OnClick"/>
     </Grid>
 </Window>
