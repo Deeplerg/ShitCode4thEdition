@@ -1,3 +1,3 @@
 ### Ссылка на скачивание:
 
-https://github.com/Deeplerg/ShitCode4thEdition/releases/download/1.0.1/AlgorithmVizualizer.Desktop.new.exe
+https://github.com/Deeplerg/ShitCode4thEdition/releases/tag/1.0.1
