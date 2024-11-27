@@ -8,7 +8,6 @@ public class MergeSort : ISortAlgorithm
 
         return MergeSortRecursive(words, 0, words.Length - 1);
     }
-
     private string[]? MergeSortRecursive(string[] words, int left, int right)
     {
         if (left == right) return new[] { words[left] };
@@ -19,7 +18,6 @@ public class MergeSort : ISortAlgorithm
 
         return Merge(leftSorted, rightSorted);
     }
-
     private string[]? Merge(string[]? left, string[]? right)
     {
         int i = 0, j = 0, k = 0;
