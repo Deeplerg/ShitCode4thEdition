@@ -306,6 +306,8 @@ namespace AlgorithmVizualizer.Desktop.Windows
             if (right < n && array[right] > array[largest])
                 largest = right;
 
+            LogHeapStructure(array, i, n); // Логирование структуры дерева
+
             if (largest != i)
             {
                 if (!_isSorting) return; // Прерывание при остановке
@@ -320,6 +322,21 @@ namespace AlgorithmVizualizer.Desktop.Windows
             }
         }
 
+
+        private void LogHeapStructure(int[] array, int index, int n)
+        {
+            List<string> levels = new List<string>();
+            for (int i = 0; i < n; i++)
+            {
+                if (i == index)
+                    levels.Add($"[{array[i]}]");
+                else if (i < n)
+                    levels.Add(array[i].ToString());
+            }
+            Log($"Текущее состояние дерева: {string.Join(", ", levels)}");
+        }
+
+        
         private void DelaySlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
 

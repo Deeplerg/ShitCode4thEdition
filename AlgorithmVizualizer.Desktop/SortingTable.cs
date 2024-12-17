@@ -15,79 +15,95 @@ namespace AlgorithmVizualizer.Desktop;
                 sorted = MergeExcelFiles(inputFile, tempFileB, tempFileC, columnIndex);
 
                 // Задержка для визуализации этапов
-                System.Threading.Thread.Sleep(1000); // 1 секунда
+                //Thread.Sleep(1000); // 1 секунда
             }
         }
 
 
-        public void SplitExcelFile(string inputFile, string tempFileB, string tempFileC, int columnIndex)
+       public void SplitExcelFile(string inputFile, string tempFileB, string tempFileC, int columnIndex)
+{
+    using (var package = new ExcelPackage(new FileInfo(inputFile)))
+    {
+        var worksheet = package.Workbook.Worksheets[0];
+        int rowCount = worksheet.Dimension?.Rows ?? 0;
+        int colCount = worksheet.Dimension?.Columns ?? 0;
+
+        DeleteExistingWorksheets(tempFileB);
+        DeleteExistingWorksheets(tempFileC);
+
+        using (var packageB = new ExcelPackage(new FileInfo(tempFileB)))
+        using (var packageC = new ExcelPackage(new FileInfo(tempFileC)))
         {
-            using (var package = new ExcelPackage(new FileInfo(inputFile)))
+            var worksheetB = packageB.Workbook.Worksheets.Add("Sheet1");
+            var worksheetC = packageC.Workbook.Worksheets.Add("Sheet1");
+
+            int rowB = 1, rowC = 1;
+            bool writeToB = true;
+
+            int start = 1;
+            while (start <= rowCount)
             {
-                var worksheet = package.Workbook.Worksheets[0];
-                int rowCount = worksheet.Dimension?.Rows ?? 0;
-                int colCount = worksheet.Dimension?.Columns ?? 0;
-
-                DeleteExistingWorksheets(tempFileB);
-                DeleteExistingWorksheets(tempFileC);
-
-                using (var packageB = new ExcelPackage(new FileInfo(tempFileB)))
-                using (var packageC = new ExcelPackage(new FileInfo(tempFileC)))
+                int end = start;
+                while (end < rowCount && 
+                       string.Compare(
+                           worksheet.Cells[end + 1, columnIndex].GetValue<string>() ?? "", 
+                           worksheet.Cells[end, columnIndex].GetValue<string>() ?? "", 
+                           StringComparison.CurrentCulture) >= 0)
                 {
-                    var worksheetB = packageB.Workbook.Worksheets.Add("Sheet1");
-                    var worksheetC = packageC.Workbook.Worksheets.Add("Sheet1");
-
-                    int rowB = 1, rowC = 1;
-                    bool writeToB = true;
-
-                    for (int i = 1; i <= rowCount; i++)
-                    {
-                        if (writeToB)
-                        {
-                            for (int col = 1; col <= colCount; col++)
-                            {
-                                worksheetB.Cells[rowB, col].Value = worksheet.Cells[i, col].Value;
-                            }
-                            rowB++;
-                        }
-                        else
-                        {
-                            for (int col = 1; col <= colCount; col++)
-                            {
-                                worksheetC.Cells[rowC, col].Value = worksheet.Cells[i, col].Value;
-                            }
-                            rowC++;
-                        }
-
-                        writeToB = !writeToB;
-                    }
-
-                    packageB.Save();
-                    packageC.Save();
+                    end++;
                 }
+
+                if (writeToB)
+                {
+                    for (int i = start; i <= end; i++)
+                    {
+                        for (int col = 1; col <= colCount; col++)
+                        {
+                            worksheetB.Cells[rowB, col].Value = worksheet.Cells[i, col].Value;
+                        }
+                        rowB++;
+                    }
+                }
+                else
+                {
+                    for (int i = start; i <= end; i++)
+                    {
+                        for (int col = 1; col <= colCount; col++)
+                        {
+                            worksheetC.Cells[rowC, col].Value = worksheet.Cells[i, col].Value;
+                        }
+                        rowC++;
+                    }
+                }
+
+                writeToB = !writeToB;
+                start = end + 1;
             }
+
+            packageB.Save();
+            packageC.Save();
+            package.Save();
         }
+    }
+}
 
 
-        public bool MergeExcelFiles(string outputFile, string tempFileB, string tempFileC, int columnIndex)
+public bool MergeExcelFiles(string outputFile, string tempFileB, string tempFileC, int columnIndex)
 {
     using (var packageB = new ExcelPackage(new FileInfo(tempFileB)))
     using (var packageC = new ExcelPackage(new FileInfo(tempFileC)))
     using (var packageOutput = new ExcelPackage(new FileInfo(outputFile)))
     {
-        var worksheetB = packageB.Workbook.Worksheets[0];
-        var worksheetC = packageC.Workbook.Worksheets[0];
+        DeleteExistingWorksheets(tempFileB);
+        DeleteExistingWorksheets(tempFileC);
+        
 
-        // Проверяем наличие листа с именем "Sheet1" и удаляем его, если он существует
-        var existingWorksheet = packageOutput.Workbook.Worksheets.FirstOrDefault(ws => ws.Name == "Sheet1");
-        if (existingWorksheet != null)
-        {
-            packageOutput.Workbook.Worksheets.Delete("Sheet1");
-        }
-
-        // Добавляем новый лист
-        var worksheetOutput = packageOutput.Workbook.Worksheets.Add("Sheet1");
-
+        var worksheetB = packageB.Workbook.Worksheets["Sheet1"]; // <--- Исправлено
+        var worksheetC = packageC.Workbook.Worksheets["Sheet1"]; // <--- Исправлено
+        var worksheetOutput = packageOutput.Workbook.Worksheets[0];
+        
+        worksheetOutput.Cells.Clear();
+        
         int rowB = 1, rowC = 1, rowOutput = 1;
         int rowCountB = worksheetB.Dimension?.Rows ?? 0;
         int rowCountC = worksheetC.Dimension?.Rows ?? 0;
@@ -97,102 +113,107 @@ namespace AlgorithmVizualizer.Desktop;
 
         while (rowB <= rowCountB || rowC <= rowCountC)
         {
-            var valueB = rowB <= rowCountB ? worksheetB.Cells[rowB, columnIndex].Value : null;
-            var valueC = rowC <= rowCountC ? worksheetC.Cells[rowC, columnIndex].Value : null;
 
-            if (valueB != null && valueC != null)
+
+            while (rowB <= rowCountB && rowC <= rowCountC)
             {
-                if (Convert.ToInt32(valueB) <= Convert.ToInt32(valueC))
+                var valueB = worksheetB.Cells[rowB, columnIndex].GetValue<string>();
+                var valueC = worksheetC.Cells[rowC, columnIndex].GetValue<string>();
+
+                if (string.Compare(valueB, valueC, StringComparison.CurrentCulture) <= 0)
                 {
-                    for (int col = 1; col <= colCount; col++)
-                    {
-                        worksheetOutput.Cells[rowOutput, col].Value = worksheetB.Cells[rowB, col].Value;
-                    }
+                    // Копируем строку из B
+                    CopyRow(worksheetB, worksheetOutput, rowB, rowOutput, colCount);
                     rowB++;
+                    rowOutput++;
                 }
                 else
                 {
-                    for (int col = 1; col <= colCount; col++)
-                    {
-                        worksheetOutput.Cells[rowOutput, col].Value = worksheetC.Cells[rowC, col].Value;
-                    }
+                    // Копируем строку из C
+                    CopyRow(worksheetC, worksheetOutput, rowC, rowOutput, colCount);
                     rowC++;
-                    sorted = false;
+                    rowOutput++;
+                    sorted = false; // Отмечаем, что файлы не отсортированы
                 }
-                rowOutput++;
             }
-            else if (valueB != null)
+
+            // Копируем оставшиеся элементы из B или C
+            while (rowB <= rowCountB)
             {
-                for (int col = 1; col <= colCount; col++)
-                {
-                    worksheetOutput.Cells[rowOutput, col].Value = worksheetB.Cells[rowB, col].Value;
-                }
+                CopyRow(worksheetB, worksheetOutput, rowB, rowOutput, colCount);
                 rowB++;
                 rowOutput++;
             }
-            else if (valueC != null)
+            while (rowC <= rowCountC)
             {
-                for (int col = 1; col <= colCount; col++)
-                {
-                    worksheetOutput.Cells[rowOutput, col].Value = worksheetC.Cells[rowC, col].Value;
-                }
+                CopyRow(worksheetC, worksheetOutput, rowC, rowOutput, colCount);
                 rowC++;
                 rowOutput++;
             }
-        }
 
+        }
+        
         packageOutput.Save();
         return sorted;
     }
 }
 
 
-
-
-        public void GenerateExcelFile(string filePath, int[] numbers)
+// Вспомогательный метод для копирования строки
+        private void CopyRow(ExcelWorksheet source, ExcelWorksheet destination, int sourceRow, int destRow, int colCount)
         {
-            using (var package = new ExcelPackage(new FileInfo(filePath)))
+            // Проверяем, что листы не null
+            if (source == null || destination == null)
             {
-                // Удаляем все существующие листы
-                while (package.Workbook.Worksheets.Count > 0)
+                throw new ArgumentNullException("Source or destination worksheet is null.");
+            }
+
+            for (int col = 1; col <= colCount; col++)
+            {
+                // Проверяем, что исходная ячейка не выходит за пределы
+                if (source.Dimension == null || sourceRow > source.Dimension.Rows || col > source.Dimension.Columns)
                 {
-                    package.Workbook.Worksheets.Delete(0);
+                    continue; // Пропускаем, если ячейка не существует
                 }
 
-                // Создаем новый лист с данными
-                var worksheet = package.Workbook.Worksheets.Add("Sheet1");
+                var cellValue = source.Cells[sourceRow, col]?.Value;
 
-                for (int i = 0; i < numbers.Length; i++)
+                // Проверяем, что значение ячейки не null
+                if (cellValue != null)
                 {
-                    worksheet.Cells[i + 1, 1].Value = numbers[i];
+                    if (destination.Dimension == null || destRow > destination.Dimension.Rows || col > destination.Dimension.Columns)
+                    {
+                        // Создаём ячейку назначения при необходимости
+                        destination.Cells[destRow, col].Value = cellValue;
+                    }
+                    else
+                    {
+                        destination.Cells[destRow, col].Value = cellValue;
+                    }
                 }
-
-                package.Save();
             }
         }
 
-        public List<List<object>> ReadExcelFile(string filePath)
+        public List<List<string>> ReadExcelFile(string filePath)
         {
-            var result = new List<List<object>>();
+            var result = new List<List<string>>();
 
             if (!File.Exists(filePath))
                 return result;
 
-            using (var package = new ExcelPackage(new FileInfo(filePath)))
-            {
-                var worksheet = package.Workbook.Worksheets[0];
-                int rowCount = worksheet.Dimension?.Rows ?? 0;
-                int colCount = worksheet.Dimension?.Columns ?? 0;
+            using var package = new ExcelPackage(new FileInfo(filePath));
+            var worksheet = package.Workbook.Worksheets[0];
+            int rowCount = worksheet.Dimension?.Rows ?? 0;
+            int colCount = worksheet.Dimension?.Columns ?? 0;
 
-                for (int row = 1; row <= rowCount; row++)
+            for (int row = 1; row <= rowCount; row++)
+            {
+                var rowData = new List<string>();
+                for (int col = 1; col <= colCount; col++)
                 {
-                    var rowData = new List<object>();
-                    for (int col = 1; col <= colCount; col++)
-                    {
-                        rowData.Add(worksheet.Cells[row, col].Value);
-                    }
-                    result.Add(rowData);
+                    rowData.Add(worksheet.Cells[row, col].Text);
                 }
+                result.Add(rowData);
             }
 
             return result;
