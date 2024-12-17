@@ -34,4 +34,13 @@
       <ProjectReference Include="..\SortingText\SortingText.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="Windows\A.xlsx">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="A.xlsx">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

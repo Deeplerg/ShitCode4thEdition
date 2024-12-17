@@ -1,17 +1,36 @@
-﻿using System.IO;
+﻿/*
+using System.IO;
 using OfficeOpenXml;
 
 namespace AlgorithmVizualizer.Desktop;
 
  public class SortingTable
-    {
-        public void NaturalMergeSortAlgorithm(string inputFile, string tempFileB, string tempFileC, int columnIndex)
+ {
+     private int _numberSorting;
+        
+        async public Task NaturalMergeSortAlgorithm(string inputFile, string tempFileB, string tempFileC, 
+            int columnIndex)
         {
             bool sorted = false;
-
             while (!sorted)
             {
-                SplitExcelFile(inputFile, tempFileB, tempFileC, columnIndex);
+                NaturalSplitExcelFile(inputFile, tempFileB, tempFileC, columnIndex);
+                sorted = MergeExcelFiles(inputFile, tempFileB, tempFileC, columnIndex);
+
+                // Задержка для визуализации этапов
+                //Thread.Sleep(1000); // 1 секунда
+            }
+
+        }
+
+        async public Task StreightMergeSortAlgorithm(string inputFile, string tempFileB, string tempFileC,
+            int columnIndex)
+        {
+            bool sorted = false;
+            _numberSorting = 1;
+            while (!sorted)
+            {
+               StraightSplitExcelFile(inputFile, tempFileB, tempFileC);
                 sorted = MergeExcelFiles(inputFile, tempFileB, tempFileC, columnIndex);
 
                 // Задержка для визуализации этапов
@@ -19,8 +38,7 @@ namespace AlgorithmVizualizer.Desktop;
             }
         }
 
-
-       public void SplitExcelFile(string inputFile, string tempFileB, string tempFileC, int columnIndex)
+       public void NaturalSplitExcelFile(string inputFile, string tempFileB, string tempFileC, int columnIndex)
 {
     using (var package = new ExcelPackage(new FileInfo(inputFile)))
     {
@@ -80,6 +98,70 @@ namespace AlgorithmVizualizer.Desktop;
                 start = end + 1;
             }
 
+            packageB.Save();
+            packageC.Save();
+            package.Save();
+        }
+    }
+}
+       
+       public void StraightSplitExcelFile(string inputFile, string tempFileB, string tempFileC)
+       {
+    using (var package = new ExcelPackage(new FileInfo(inputFile)))
+    {
+        var worksheet = package.Workbook.Worksheets[0];
+        int rowCount = worksheet.Dimension?.Rows ?? 0;
+        int colCount = worksheet.Dimension?.Columns ?? 0;
+
+        DeleteExistingWorksheets(tempFileB);
+        DeleteExistingWorksheets(tempFileC);
+
+        using (var packageB = new ExcelPackage(new FileInfo(tempFileB)))
+        using (var packageC = new ExcelPackage(new FileInfo(tempFileC)))
+        {
+            var worksheetB = packageB.Workbook.Worksheets.Add("Sheet1");
+            var worksheetC = packageC.Workbook.Worksheets.Add("Sheet1");
+
+            int rowB = 1, rowC = 1;
+            bool writeToB = true;
+
+            int start = 1;
+            while (start <= rowCount)
+            {
+                int end = (int)Math.Pow(2,_numberSorting);
+                if (end > rowCount)
+                {
+                    end = rowCount;
+                }
+
+                if (writeToB)
+                {
+                    for (int i = start; i <= end; i++)
+                    {
+                        for (int col = 1; col <= colCount; col++)
+                        {
+                            worksheetB.Cells[rowB, col].Value = worksheet.Cells[i, col].Value;
+                        }
+                        rowB++;
+                    }
+                }
+                else
+                {
+                    for (int i = start; i <= end; i++)
+                    {
+                        for (int col = 1; col <= colCount; col++)
+                        {
+                            worksheetC.Cells[rowC, col].Value = worksheet.Cells[i, col].Value;
+                        }
+                        rowC++;
+                    }
+                }
+
+                writeToB = !writeToB;
+                start = end + 1;
+            }
+
+            _numberSorting++;
             packageB.Save();
             packageC.Save();
             package.Save();
@@ -242,4 +324,4 @@ public bool MergeExcelFiles(string outputFile, string tempFileB, string tempFile
             }
         }
 
-    }
+    }*/

@@ -1,11 +1,15 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using OfficeOpenXml;
 
 namespace AlgorithmVizualizer.Desktop.Windows;
 
@@ -13,12 +17,15 @@ public partial class TableWindow : Window
 {
     private int _chunkSize = 8;
     private int _currentChunkStart = 0;
-    private string _filePath = string.Empty;
+    private string _filePath = "A.xlsx";
     private int _columnToSortBy; // starts with 1
     private int _delayMilliseconds = 50;
     private readonly List<string[]> _currentChunk = new();
     private readonly List<int> _rowsToHighlight = new();
     private int _totalLines;
+    private const string TempFileB = "..\\B.xlsx";
+    private const string TempFileC = "..\\C.xlsx";
+    private const string NameA = "Файл A";
 
     public TableWindow()
     {
@@ -58,12 +65,16 @@ public partial class TableWindow : Window
 
     private void BtnLoadTable_Click(object sender, RoutedEventArgs e)
     {
+        SortingTable table = new();
+        //DisplayChunk(table.ReadCsvFile(_filePath), NameA);
+        
+        /*
         if (string.IsNullOrEmpty(_filePath))
         {
             MessageBox.Show("Выберите файл перед загрузкой.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             return;
         }
-
+        SortingTable sortingTable = new();
         if (!int.TryParse(txtChunkSize.Text, out _chunkSize) || _chunkSize <= 0)
         {
             MessageBox.Show("Введите корректный размер чанка.", "Ошибка", MessageBoxButton.OK,
@@ -71,10 +82,11 @@ public partial class TableWindow : Window
             return;
         }
 
-        LoadChunk(0);
-        DisplayChunk();
+        //LoadChunk(0);
+        DisplayChunk(sortingTable.ReadExcelFile(_filePath), NameA);
 
         _totalLines = GetTotalLines();
+        */
     }
 
     private void BtnPrevChunk_Click(object sender, RoutedEventArgs e)
@@ -240,6 +252,68 @@ public partial class TableWindow : Window
         dataTable.ItemsSource = chunkRows.ToList();
 
     }
+    
+    private void DisplayChunk(List<string[]> chunkRows, string chunkName)
+    {
+        dataTable.Columns.Clear();
+        dataTable.ItemsSource = null;
+
+        if (chunkRows == null || chunkRows.Count == 0)
+        {
+            MessageBox.Show($"Чанк '{chunkName}' пуст или не содержит данных.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
+        // Получаем количество колонок из первой строки (если она не null)
+        int columnCount = chunkRows[0]?.Length ?? 0;
+
+
+        for (int i = 0; i < columnCount; i++)
+        {
+            dataTable.Columns.Add(new DataGridTextColumn
+            {
+                Header = $"Колонка {i + 1}",
+                Binding = new System.Windows.Data.Binding($"[{i}]") 
+            });
+        }
+
+        // Преобразуем List<string[]> в формат, подходящий для DataGrid
+        dataTable.ItemsSource = chunkRows.Select(row => new RowWrapper(row));
+
+    }
+
+
+// Вспомогательный класс для отображения массива строк в DataGrid
+    public class RowWrapper
+    {
+        public string[] RowData { get; set; }
+
+
+        public RowWrapper(string[] rowData)
+        {
+            RowData = rowData;
+        }
+
+        // Индексатор для доступа к элементам массива по индексу
+        public string this[int index]
+        {
+            get
+            {
+                if (index >= 0 && index < RowData.Length) {
+                    return RowData[index];
+                }
+                return null; // Or throw an exception, or return an empty string, depending on your needs
+            }
+
+            //set
+            //{
+            //    if (index >= 0 && index < RowData.Length) {
+            //        RowData[index] = value;
+            //    } //  else throw exception...
+            //}
+        }
+    }
+
 
     private void HighlightComparison(int rowIndex1, int rowIndex2, string data1, string data2)
     {
@@ -275,15 +349,15 @@ public partial class TableWindow : Window
     {
         // _columnToSortBy is 1-based
         int sortColumnIndex = _columnToSortBy - 1;
-
+        SortingTable sortingTable = new SortingTable();
         switch (cmbSortMethod.SelectedIndex)
         {
             case 0:
-                await StraightMergeSort(sortColumnIndex, visualize);
+                await sortingTable.StraightMergeSortCsv(_filePath, _filePath, sortColumnIndex);
                 break;
 
             case 1:
-                await NaturalMergeSort(sortColumnIndex, visualize);
+                await sortingTable.NaturalMergeSortCsv(_filePath, _filePath, sortColumnIndex, new CancellationToken(),dataTable);
                 break;
 
             case 2:
@@ -297,7 +371,7 @@ public partial class TableWindow : Window
         }
 
         LoadChunk(0);
-        DisplayChunk();
+        //DisplayChunk(sortingTable.ReadCsvFile(_filePath), NameA);
     }
     
     
@@ -405,7 +479,7 @@ public partial class TableWindow : Window
     
     
     
-    private async Task NaturalMergeSort(int sortColumnIndex, bool visualize)
+    /*private async Task NaturalMergeSort(int sortColumnIndex, bool visualize)
     {
         txtLog.AppendText("Начало естественного слияния\n");
 
@@ -447,7 +521,7 @@ public partial class TableWindow : Window
         LoadChunk(0);
         DisplayChunk();
     }
-
+*/
     private List<List<string[]>> NaturalDivideIntoRuns(int sortColumnIndex, bool visualize)
     {
         var runs = new List<List<string[]>>();
@@ -650,3 +724,470 @@ public partial class TableWindow : Window
         }
     }
 }
+
+public class SortingTable
+{
+   // private int _numberSorting;
+
+    /*public List<string[]> ReadCsvFile(string filePath)
+    {
+        var records = new List<string[]>();
+        using (var reader = new StreamReader(filePath))
+        {
+            while (!reader.EndOfStream)
+            {
+                string line = reader.ReadLine();
+                if (!string.IsNullOrEmpty(line))
+                {
+                    records.Add(line.Split(','));
+                }
+            }
+        }
+
+        return records;
+    }*/
+
+  /*  private void WriteCsvFile(string filePath, List<string[]> records)
+    {
+        using (var writer = new StreamWriter(filePath, false))
+        {
+            foreach (string[] record in records)
+            {
+                writer.WriteLine(string.Join(",", record));
+            }
+        }
+    }
+*/
+   /* private bool IsSorted(string[] row1, string[] row2, int columnIndex)
+    {
+        if (row1 == null || row2 == null || columnIndex < 0 || columnIndex >= row1.Length || columnIndex >= row2.Length)
+        {
+            return false;
+        }
+
+        return string.Compare(row1[columnIndex], row2[columnIndex], StringComparison.InvariantCultureIgnoreCase) <= 0;
+    }
+*/
+    public void NaturalSplitCsvFile(string inputFile, string tempFileB, string tempFileC, int columnIndex)
+    {
+        var inputRecords = ReadCsvFile(inputFile);
+        var outputB = new List<string[]>();
+        var outputC = new List<string[]>();
+
+        bool writeToB = true;
+
+        for (int i = 0; i < inputRecords.Count; i++)
+        {
+            if (writeToB)
+                outputB.Add(inputRecords[i]);
+            else
+                outputC.Add(inputRecords[i]);
+
+            if (i + 1 < inputRecords.Count && !IsSorted(inputRecords[i], inputRecords[i + 1], columnIndex))
+            {
+                writeToB = !writeToB;
+            }
+        }
+
+        WriteCsvFile(tempFileB, outputB);
+        WriteCsvFile(tempFileC, outputC);
+    }
+
+    public void NaturalMergeCsvFiles(string outputFile, string tempFileB, string tempFileC, int columnIndex)
+    {
+        var linesB = ReadCsvFile(tempFileB);
+        var linesC = ReadCsvFile(tempFileC);
+
+        var output = new List<string[]>();
+        int i = 0, j = 0;
+
+        while (i < linesB.Count || j < linesC.Count)
+        {
+            while (i < linesB.Count && j < linesC.Count)
+            {
+                if (IsSorted(linesB[i], linesC[j], columnIndex))
+                {
+                    output.Add(linesB[i]);
+                    i++;
+                }
+                else
+                {
+                    output.Add(linesC[j]);
+                    j++;
+                }
+
+                if ((i < linesB.Count - 1 && !IsSorted(linesB[i], linesB[i + 1], columnIndex)) ||
+                    (j < linesC.Count - 1 && !IsSorted(linesC[j], linesC[j + 1], columnIndex)))
+                    break;
+            }
+
+
+            while (i < linesB.Count)
+            {
+                output.Add(linesB[i]);
+                if (i < linesB.Count - 1 && !IsSorted(linesB[i], linesB[i + 1], columnIndex))
+                {
+                    i++;
+                    break;
+                }
+
+                i++;
+            }
+
+
+            while (j < linesC.Count)
+            {
+                output.Add(linesC[j]);
+                if (j < linesC.Count - 1 && !IsSorted(linesC[j], linesC[j + 1], columnIndex))
+                {
+                    j++;
+                    break;
+                }
+
+                j++;
+            }
+        }
+
+        WriteCsvFile(outputFile, output);
+    }
+
+
+    /*public async Task NaturalMergeSortCsv(string inputFile, string outputFile, int columnIndex)
+    {
+        string tempFileB = "TempB.csv";
+        string tempFileC = "TempC.csv";
+
+
+        while (true)
+        {
+
+            NaturalSplitCsvFile(inputFile, tempFileB, tempFileC, columnIndex);
+
+
+            if (new FileInfo(tempFileC).Length == 0 || new FileInfo(tempFileB).Length == 0)
+            {
+                File.Copy(tempFileB.Length > 0 ? tempFileB : tempFileC, outputFile, true);
+                break;
+            }
+
+
+            NaturalMergeCsvFiles(outputFile, tempFileB, tempFileC, columnIndex);
+
+
+            File.Copy(outputFile, inputFile, true);
+
+        }
+    }*/
+
+
+   /* private void CopyLines(List<string[]> source, List<string[]> destination, int start, int count)
+    {
+        for (int i = start; i < start + count && i < source.Count; i++)
+        {
+            destination.Add(source[i]);
+        }
+    }*/
+
+
+
+
+    public void SplitCsvFileMultiway(string inputFile, List<string> tempFiles, int numberOfFiles)
+    {
+        var inputRecords = ReadCsvFile(inputFile);
+        var fileOutputs = new List<List<string[]>>();
+
+        for (int j = 0; j < numberOfFiles; j++)
+            fileOutputs.Add(new List<string[]>());
+
+        int currentFile = 0;
+        int blockSize = (int)Math.Pow(2, _numberSorting);
+        int i = 0;
+
+        while (i < inputRecords.Count)
+        {
+            int remaining = inputRecords.Count - i;
+            CopyLines(inputRecords, fileOutputs[currentFile], i, Math.Min(blockSize, remaining));
+            i += blockSize;
+            currentFile = (currentFile + 1) % numberOfFiles;
+        }
+
+        for (int j = 0; j < numberOfFiles; j++)
+        {
+            WriteCsvFile(tempFiles[j], fileOutputs[j]);
+        }
+
+        _numberSorting++;
+    }
+
+
+    public void MultiwayMergeCsvFiles(string outputFile, List<string> tempFiles, int columnIndex)
+    {
+        var readers = tempFiles.Select(file => new StreamReader(file)).ToList();
+        var lines = readers.Select(reader => reader.ReadLine()).ToArray();
+        var output = new List<string[]>();
+
+        while (lines.Any(line => line != null))
+        {
+            int minIndex = -1;
+            string[] minValue = null; // Changed to string[]
+
+            // Find minimum value
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (lines[i] != null)
+                {
+                    string[] currentColumns = lines[i].Split(',');
+                    if (minValue == null || string.Compare(currentColumns[columnIndex], minValue[columnIndex],
+                            StringComparison.InvariantCultureIgnoreCase) < 0)
+                    {
+                        minValue = currentColumns;
+                        minIndex = i;
+                    }
+                }
+            }
+
+            // Add minimum row to output
+            output.Add(minValue); // Add the entire row (string[])
+            lines[minIndex] = readers[minIndex].ReadLine();
+        }
+
+        foreach (var reader in readers) reader.Close();
+
+        WriteCsvFile(outputFile, output);
+    }
+
+
+
+
+    public void StraightSplitCsvFile(string inputFile, string tempFileB, string tempFileC)
+    {
+        var inputLines = ReadCsvFile(inputFile); // Changed to ReadCsvFile and store as string[][]
+        var outputB = new List<string[]>();
+        var outputC = new List<string[]>();
+
+        int blockSize = (int)Math.Pow(2, _numberSorting);
+        int i = 0;
+
+        while (i < inputLines.Count)
+        {
+            int remaining = inputLines.Count - i;
+            if ((i / blockSize) % 2 == 0)
+            {
+                CopyLines(inputLines, outputB, i, Math.Min(blockSize, remaining));
+
+            }
+            else
+            {
+                CopyLines(inputLines, outputC, i, Math.Min(blockSize, remaining));
+            }
+
+            i += blockSize;
+        }
+
+        WriteCsvFile(tempFileB, outputB);
+        WriteCsvFile(tempFileC, outputC);
+        _numberSorting++;
+    }
+/// <summary>
+/// ///////////////
+/// </summary>
+private int _numberSorting;
+    public List<RowWrapper> DisplayedData { get; set; } = new();
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    protected virtual void OnPropertyChanged(string propertyName) =>
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+    private List<string[]> ReadCsvFile(string filePath)
+    {
+        var records = new List<string[]>();
+        using (var reader = new StreamReader(filePath))
+        {
+            while (!reader.EndOfStream)
+            {
+                string line = reader.ReadLine();
+                if (!string.IsNullOrEmpty(line))
+                {
+                    records.Add(line.Split(','));
+                }
+            }
+        }
+        return records;
+    }
+
+    private void WriteCsvFile(string filePath, List<string[]> records)
+    {
+        using var writer = new StreamWriter(filePath, false);
+        foreach (string[] record in records)
+        {
+            writer.WriteLine(string.Join(",", record));
+        }
+    }
+
+    private bool IsSorted(string[] row1, string[] row2, int columnIndex)
+    {
+        if (row1 == null || row2 == null || columnIndex < 0 ||
+            columnIndex >= row1.Length || columnIndex >= row2.Length)
+        {
+            return false;
+        }
+        return string.Compare(row1[columnIndex], row2[columnIndex], StringComparison.InvariantCultureIgnoreCase) <= 0;
+    }
+
+    private async Task UpdateDataGridAsync(List<string[]> chunkRows, string chunkName, CancellationToken cancellationToken)
+    {
+        await Application.Current.Dispatcher.InvokeAsync(() =>
+        {
+            if (dataTable is null)
+                return;
+            dataTable.Columns.Clear();
+            dataTable.ItemsSource = null;
+
+
+            if (chunkRows == null || chunkRows.Count == 0)
+            {
+                MessageBox.Show($"Чанк '{chunkName}' пуст или не содержит данных.", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+
+            int columnCount = chunkRows[0]?.Length ?? 0;
+
+
+            for (int i = 0; i < columnCount; i++)
+            {
+                dataTable.Columns.Add(new DataGridTextColumn
+                {
+                    Header = $"Колонка {i + 1}",
+                    Binding = new Binding($"[{i}]")
+                });
+            }
+
+
+            DisplayedData = chunkRows.Select(row => new RowWrapper(row)).ToList();
+            dataTable.ItemsSource = DisplayedData;
+
+
+        });
+        await Task.Delay(200, cancellationToken);
+    }
+
+
+
+
+    private void CopyLines(List<string[]> source, List<string[]> destination, int start, int count)
+    {
+        for (int i = start; i < start + count && i < source.Count; i++)
+        {
+            destination.Add(source[i]);
+        }
+    }
+    // Объявляем dataTable как поле
+    private DataGrid dataTable;
+
+
+    public async Task NaturalMergeSortCsv(string inputFile, string outputFile, int columnIndex,
+        CancellationToken cancellationToken, DataGrid dataGrid)
+    {
+        string tempFileB = "TempB.csv";
+        string tempFileC = "TempC.csv";
+
+        dataTable = dataGrid; // Инициализируем поле dataGrid
+
+
+        while (!cancellationToken.IsCancellationRequested)
+        {
+
+            NaturalSplitCsvFile(inputFile, tempFileB, tempFileC, columnIndex);
+
+            await UpdateDataGridAsync(ReadCsvFile(inputFile), "Входные данные", cancellationToken);
+            await UpdateDataGridAsync(ReadCsvFile(tempFileB), "Временный файл B", cancellationToken);
+            await UpdateDataGridAsync(ReadCsvFile(tempFileC), "Временный файл C", cancellationToken);
+
+
+            if (new FileInfo(tempFileC).Length == 0 || new FileInfo(tempFileB).Length == 0)
+            {
+                File.Copy(tempFileB.Length > 0 ? tempFileB : tempFileC, outputFile, true);
+                await UpdateDataGridAsync(ReadCsvFile(outputFile), "Выходные данные", cancellationToken);
+                break;
+            }
+
+
+            NaturalMergeCsvFiles(outputFile, tempFileB, tempFileC, columnIndex);
+            await UpdateDataGridAsync(ReadCsvFile(outputFile), "Выходные данные", cancellationToken);
+
+
+            File.Copy(outputFile, inputFile, true);
+        }
+    }
+
+
+    public void StraightMergeCsvFiles(string outputFile, string tempFileB, string tempFileC, int columnIndex)
+    {
+        var linesB = ReadCsvFile(tempFileB);
+        var linesC = ReadCsvFile(tempFileC);
+
+        var output = new List<string[]>();
+        int i = 0, j = 0;
+
+        while (i < linesB.Count && j < linesC.Count)
+        {
+            if (string.Compare(linesB[i][columnIndex], linesC[j][columnIndex],
+                    StringComparison.InvariantCultureIgnoreCase) <= 0) // Access elements directly
+            {
+                output.Add(linesB[i]);
+                i++;
+            }
+            else
+            {
+                output.Add(linesC[j]);
+                j++;
+            }
+        }
+
+
+        while (i < linesB.Count) output.Add(linesB[i++]);
+        while (j < linesC.Count) output.Add(linesC[j++]);
+
+        WriteCsvFile(outputFile, output);
+    }
+
+    public async Task StraightMergeSortCsv(string inputFile, string outputFile, int columnIndex)
+    {
+        string tempFileB = "TempB.csv";
+        string tempFileC = "TempC.csv";
+
+        while (true)
+        {
+            // Разделение
+            StraightSplitCsvFile(inputFile, tempFileB, tempFileC);
+
+            // Если один из файлов пуст, значит сортировка завершена
+            if (new FileInfo(tempFileC).Length == 0 || new FileInfo(tempFileB).Length == 0)
+            {
+                File.Copy(tempFileB.Length > 0 ? tempFileB : tempFileC, outputFile, true);
+                break;
+            }
+
+            // Слияние
+            StraightMergeCsvFiles(outputFile, tempFileB, tempFileC, columnIndex);
+
+            // Подготовка к следующей итерации
+            File.Copy(outputFile, inputFile, true);
+            ;
+        }
+    }
+    public class RowWrapper
+    {
+        public string[] RowData { get; }
+
+        public RowWrapper(string[] rowData) => RowData = rowData;
+
+        public string this[int index] => index >= 0 && index < RowData.Length ? RowData[index] : null;
+    }
+}
+
+
+
