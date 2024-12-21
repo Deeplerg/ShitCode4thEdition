@@ -294,33 +294,89 @@ namespace AlgorithmVizualizer.Desktop.Windows
             Log("Сортировка остановлена.");
         }
 
-        private async Task Heapify(int[] array, int n, int i, int delay)
-        {
-            int largest = i;
-            int left = 2 * i + 1;
-            int right = 2 * i + 2;
+        /*private async Task HeapSort(int[] array, int delay)
+{
+    int n = array.Length;
 
-            if (left < n && array[left] > array[largest])
-                largest = left;
+    Log("Начало сортировки кучей (HeapSort)");
 
-            if (right < n && array[right] > array[largest])
-                largest = right;
+    // Построение кучи (heapify)
+    Log("Построение кучи:");
+    for (int i = n / 2 - 1; i >= 0; i--)
+    {
+        Log($"Heapify для элемента с индексом {i}");
+        await Heapify(array, n, i, delay);
+    }
+    Log("Куча построена:");
+    LogHeapStructure(array, 0, n); // Логирование окончательной структуры кучи
 
-            LogHeapStructure(array, i, n); // Логирование структуры дерева
 
-            if (largest != i)
-            {
-                if (!_isSorting) return; // Прерывание при остановке
+    // Сортировка
+    Log("Начало сортировки:");
+    for (int i = n - 1; i >= 0; i--)
+    {
+        if (!_isSorting) return; // Прерывание при остановке
 
-                Log($"Меняем местами: {array[i]} и {array[largest]}");
-                UpdateVisualization(array, i, largest);
-                (array[i], array[largest]) = (array[largest], array[i]);
-                await Task.Delay(delay);
-                UpdateVisualization(array, i, largest);
-                await Task.Delay(delay);
-                await Heapify(array, n, largest, delay);
-            }
-        }
+        Log($"Итерация {n - i}:");
+        Log($"Меняем местами корень кучи ({array[0]}) и последний элемент ({array[i]})");
+        UpdateVisualization(array, 0, i);
+        (array[0], array[i]) = (array[i], array[0]);
+        await Task.Delay(delay);
+        UpdateVisualization(array, 0, i);
+        await Task.Delay(delay);
+
+        Log($"Восстанавливаем кучу после обмена:");
+        await Heapify(array, i, 0, delay); // Heapify для уменьшенной кучи
+        Log($"Куча после восстановления:");
+        LogHeapStructure(array, 0, i);
+    }
+
+    Log("Сортировка завершена.");
+}*/
+
+
+private async Task Heapify(int[] array, int n, int i, int delay)
+{
+    int largest = i;
+    int left = 2 * i + 1;
+    int right = 2 * i + 2;
+
+    Log($"Heapify для узла {array[i]} (индекс {i}), левый потомок: {(left < n ? array[left].ToString() : "нет")}, правый потомок: {(right < n ? array[right].ToString() : "нет")}");
+
+
+    if (left < n && array[left] > array[largest])
+    {
+        largest = left;
+        Log($"Левый потомок ({array[left]}) больше текущего largest ({array[largest]})");
+    }
+
+    if (right < n && array[right] > array[largest])
+    {
+        largest = right;
+        Log($"Правый потомок ({array[right]}) больше текущего largest ({array[largest]})");
+    }
+
+
+    if (largest != i)
+    {
+        if (!_isSorting) return; // Прерывание при остановке
+
+        Log($"Меняем местами: {array[i]} и {array[largest]}");
+        UpdateVisualization(array, i, largest);
+        (array[i], array[largest]) = (array[largest], array[i]);
+        await Task.Delay(delay);
+        UpdateVisualization(array, i, largest);
+        await Task.Delay(delay);
+
+        Log($"Рекурсивный вызов Heapify для индекса {largest}");
+        await Heapify(array, n, largest, delay);
+    }
+    else
+    {
+        Log($"Узел {array[i]} (индекс {i}) уже на правильном месте в куче.");
+    }
+}
+
 
 
         private void LogHeapStructure(int[] array, int index, int n)
