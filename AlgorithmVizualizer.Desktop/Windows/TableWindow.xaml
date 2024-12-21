@@ -20,12 +20,7 @@
         <StackPanel Background="#FF48A3EF" Grid.Row="0" Orientation="Vertical" Margin="10">
             <StackPanel Background="#FF48A3EF" Orientation="Horizontal" Margin="0,5">
                 <Button Name="btnSelectFile" Content="Выбрать файл" FontFamily="Verdana" Width="150" Margin="5" Click="BtnSelectFile_Click"/>
-                <Label Content="Размер чанка:" VerticalAlignment="Center" Margin="5,0" FontFamily="Verdana"/>
-                <TextBox Name="txtChunkSize" Width="80" Margin="5" IsEnabled="True" FontFamily="Verdana"/>
                 <Button Name="btnLoadTable" Content="Загрузить" Width="100" Margin="5" Click="BtnLoadTable_Click" FontFamily="Verdana"/>
-            </StackPanel>
-            
-            <StackPanel Background="#FF48A3EF" Orientation="Horizontal" Margin="0,5">
                 <Label Content="Метод сортировки:" FontFamily="Verdana" VerticalAlignment="Center" Margin="5,0"/>
                 <ComboBox Name="cmbSortMethod" Width="150" Margin="5" FontFamily="Verdana">
                     <ComboBoxItem Content="Прямое слияние" FontFamily="Verdana"/>
@@ -38,6 +33,11 @@
                 <Slider Name="sliderDelay" Minimum="100" Maximum="2000" TickFrequency="100" Width="150" FontFamily="Verdana" Margin="5" ValueChanged="SliderDelay_ValueChanged"/>
                 <Label Name="lblDelayValue" Content="50 мс" VerticalAlignment="Center" Margin="5,0" FontFamily="Verdana"/>
             </StackPanel>
+            
+            <StackPanel Background="#FF48A3EF" Orientation="Horizontal" Margin="0,5">
+                <Label Content="В данный момент отображается файл:" VerticalAlignment="Center" FontFamily="Verdana"></Label>
+                <TextBlock Name="TextBlockFileName" VerticalAlignment="Center" FontFamily="Verdana" Background="#FF48A3EF"></TextBlock>
+            </StackPanel>
         </StackPanel>
 
         <ScrollViewer Grid.Row="1" Margin="10">
@@ -46,10 +46,7 @@
 
         <StackPanel Background="#FF48A3EF" Grid.Row="2" Orientation="Vertical" Margin="10">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Name="btnPrevChunk" Content="Предыдущий чанк" Width="200" Margin="5" Click="BtnPrevChunk_Click" FontFamily="Verdana"/>
-                <Button Name="btnNextChunk" Content="Следующий чанк" Width="200" Margin="5" Click="BtnNextChunk_Click" FontFamily="Verdana"/>
                 <Button Name="btnSortNow" Content="Сортировать сразу" Width="200" Margin="5" Click="BtnSortNow_Click" FontFamily="Verdana"/>
-                <Button Name="btnSortVisualize" Content="Визуализировать сортировку" Width="280" Margin="5" Click="BtnSortVisualize_Click" FontFamily="Verdana"/>
             </StackPanel>
             <Label Content="Лог операций:" HorizontalAlignment="Left" Margin="5,5,0,0" FontFamily="Verdana"/>
             <ScrollViewer Height="100" VerticalScrollBarVisibility="Auto" Margin="0,5" FontFamily="Verdana">

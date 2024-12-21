@@ -1,5 +1,4 @@
-﻿/*
-using System.IO;
+﻿using System.IO;
 using OfficeOpenXml;
 
 namespace AlgorithmVizualizer.Desktop;
@@ -324,4 +323,4 @@ public bool MergeExcelFiles(string outputFile, string tempFileB, string tempFile
             }
         }
 
-    }*/
+    }
